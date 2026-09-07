@@ -1,0 +1,11 @@
+# Build-Artefakte
+*.streamDeckPlugin
+/releases/*.streamDeckPlugin
+
+# Logs
+logs/
+*.log
+
+# System
+.DS_Store
+Thumbs.db

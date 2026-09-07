@@ -1,0 +1,183 @@
+{
+    "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+    "Name": "FiveNet for StreamDeck",
+    "Version": "0.4.1.0",
+    "Author": "PhilTec-Philip",
+    "Actions": [
+        {
+            "Name": "Login",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.login",
+            "Icon": "imgs/actions/login/icon",
+            "Tooltip": "FiveNet-Server anmelden",
+            "PropertyInspectorPath": "ui/login.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/login/key",
+                    "TitleAlignment": "middle",
+                    "Title": "Login"
+                }
+            ],
+            "UserTitleEnabled": true
+        },
+        {
+            "Name": "Offene Dispatches",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.dispatch-status",
+            "Icon": "imgs/actions/dispatch-status/icon",
+            "Tooltip": "Zeigt die Anzahl offener Einsätze",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/dispatch-status/key",
+                    "TitleAlignment": "middle",
+                    "Title": "0"
+                }
+            ]
+        },
+        {
+            "Name": "Dispatch-Status Anzeige",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.dispatch-status-display",
+            "Icon": "imgs/actions/dispatch-status-display/icon",
+            "Tooltip": "Zeigt den Status des angenommenen Einsatzes",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/dispatch-status-display/key",
+                    "TitleAlignment": "middle",
+                    "Title": "Status"
+                }
+            ]
+        },
+        {
+            "Name": "Dispatch-Status setzen",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.dispatch-setzen",
+            "Icon": "imgs/actions/dispatch-setzen/icon",
+            "Tooltip": "Setzt den Status des angenommenen Einsatzes",
+            "PropertyInspectorPath": "ui/dispatch-setzen.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/dispatch-setzen/key",
+                    "TitleAlignment": "middle",
+                    "Title": "Set"
+                }
+            ]
+        },
+        {
+            "Name": "Dispatch annehmen/ablehnen",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.take-dispatch",
+            "Icon": "imgs/actions/take-dispatch/icon",
+            "Tooltip": "Nimmt einen zugewiesenen Einsatz an oder lehnt ihn ab",
+            "PropertyInspectorPath": "ui/take-dispatch.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/take-dispatch/key",
+                    "TitleAlignment": "middle",
+                    "Title": "Take"
+                }
+            ]
+        },
+        {
+            "Name": "Einheit-Status setzen",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.unit-status",
+            "Icon": "imgs/actions/unit-status/icon",
+            "Tooltip": "Setzt den Status deiner Einheit",
+            "PropertyInspectorPath": "ui/unit-status.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/unit-status/key",
+                    "TitleAlignment": "middle",
+                    "Title": "Status"
+                }
+            ]
+        },
+        {
+            "Name": "Einheit-Status Anzeige",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.unit-status-display",
+            "Icon": "imgs/actions/unit-status-display/icon",
+            "Tooltip": "Zeigt den aktuellen Status deiner Einheit",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/unit-status-display/key",
+                    "TitleAlignment": "middle",
+                    "Title": "Status"
+                }
+            ]
+        },
+        {
+            "Name": "Einheit beitreten",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.join-unit",
+            "Icon": "imgs/actions/join-unit/icon",
+            "Tooltip": "Tritt einer Einheit bei",
+            "PropertyInspectorPath": "ui/join-unit.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/join-unit/key",
+                    "TitleAlignment": "middle",
+                    "Title": "Join"
+                }
+            ]
+        },
+        {
+            "Name": "Benachrichtigungen",
+            "UUID": "com.philtec-philip.fivenet-streamdeck.notification-count",
+            "Icon": "imgs/actions/notification-count/icon",
+            "Tooltip": "Zeigt Anzahl ungelesener Benachrichtigungen",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/notification-count/key",
+                    "TitleAlignment": "middle",
+                    "Title": "0"
+                }
+            ]
+        }
+    ],
+    "Category": "FiveNet for StreamDeck",
+    "CategoryIcon": "imgs/plugin/category-icon",
+    "CodePath": "bin/plugin.js",
+    "Description": "StreamDeck-Plugin für FiveM-Server mit FiveNet-Integration",
+    "Icon": "imgs/plugin/marketplace",
+    "URL": "https://github.com/fivenet/plugin-streamdeck",
+    "SDKVersion": 3,
+    "Software": {
+        "MinimumVersion": "7.1"
+    },
+    "OS": [
+        {
+            "Platform": "mac",
+            "MinimumVersion": "12"
+        },
+        {
+            "Platform": "windows",
+            "MinimumVersion": "10"
+        }
+    ],
+    "Nodejs": {
+        "Version": "24",
+        "Debug": "enabled"
+    },
+    "UUID": "com.philtec-philip.fivenet-streamdeck"
+}

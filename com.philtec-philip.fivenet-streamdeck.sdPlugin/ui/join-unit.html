@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Einheit beitreten</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <style>
+        #status {
+            margin: 10px 0;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            background: #2b2f38;
+        }
+        #status.current {
+            border-left: 3px solid #34c759;
+            color: #8ce99a;
+        }
+        #status.none {
+            border-left: 3px solid #1d4ed8;
+            color: #cbd5e1;
+        }
+        #status.error {
+            border-left: 3px solid #dc2626;
+            color: #fca5a5;
+        }
+        .hint {
+            color: #9ca3af;
+            font-size: 11px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <sdpi-item label="Einheit">
+        <sdpi-select id="unit-select" setting="unitID" datasource="units"
+            placeholder="— Einheit wählen —"
+            loading="Lade Einheiten..." show-refresh hot-reload>
+        </sdpi-select>
+    </sdpi-item>
+
+    <div id="status" class="none">Einheit wird geladen...</div>
+
+    <div class="hint">
+        Die Auswahl wird gespeichert. Der Beitritt erfolgt durch einen Druck auf die Taste am Stream Deck.
+    </div>
+    <div id="loading" style="display:none;">Einheitenliste wird aktualisiert...</div>
+
+    <script>
+        SDPIComponents.streamDeckClient.sendToPropertyInspector.subscribe(function(ev) {
+            if (ev.payload && ev.payload.event === 'units') {
+                const status = document.getElementById('status');
+                if (ev.payload.ownUnitName) {
+                    status.className = 'current';
+                    status.textContent = 'Aktuell: ' + ev.payload.ownUnitName;
+                } else {
+                    status.className = 'none';
+                    status.textContent = 'Noch keine Einheit. Einheit auswählen, dann Taste drücken.';
+                }
+                document.getElementById('loading').style.display = 'none';
+                if (ev.payload.items && ev.payload.items.length === 0) {
+                    status.className = 'error';
+                    status.textContent = 'Keine Einheiten geladen. Server-Einstellungen prüfen.';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

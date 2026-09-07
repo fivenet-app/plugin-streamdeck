@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>FiveNet Login</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <style>
+        .char-card {
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin: 4px 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .char-card:hover {
+            border-color: #007AFF;
+            background: rgba(0, 122, 255, 0.08);
+        }
+        .char-card.active {
+            border-color: #34c759;
+            background: rgba(52, 199, 89, 0.15);
+        }
+        .char-card .name {
+            font-weight: 600;
+            color: #eee;
+        }
+        .char-card .job {
+            color: #999;
+            font-size: 11px;
+        }
+        .char-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        section {
+            border-top: 1px solid #333;
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+        .section-title {
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <section>
+        <div class="section-title">Anmeldung</div>
+        <div id="login-form">
+            <sdpi-item label="Server URL">
+                <sdpi-textfield setting="serverURL" placeholder="https://demo.fivenet.app"></sdpi-textfield>
+            </sdpi-item>
+
+            <sdpi-item label="Benutzername">
+                <sdpi-textfield setting="username" placeholder="Benutzername"></sdpi-textfield>
+            </sdpi-item>
+
+            <sdpi-item label="Passwort">
+                <sdpi-password setting="password" placeholder="Passwort"></sdpi-password>
+            </sdpi-item>
+
+            <sdpi-item>
+                <sdpi-button onclick="doLogin()">Anmelden</sdpi-button>
+            </sdpi-item>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title">Charakter</div>
+        <div id="char-form" style="color:#888;font-size:12px;">Kein Charakter ausgewählt. Bitte erst anmelden.</div>
+    </section>
+
+    <div id="status" style="margin-top:8px;padding:4px 8px;font-size:11px;color:#aaa;"></div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const charFormEl = document.getElementById('char-form');
+
+        function setStatus(text, color) {
+            statusEl.textContent = text;
+            statusEl.style.color = color || '#aaa';
+        }
+
+        async function doLogin() {
+            setStatus('Verbinde...', '#ffcc00');
+
+            const serverURL = document.querySelector('[setting="serverURL"]').value;
+            const username = document.querySelector('[setting="username"]').value;
+            const password = document.querySelector('[setting="password"]').value;
+
+            if (!serverURL || !username || !password) {
+                setStatus('Bitte alle Felder ausfüllen', '#ff4444');
+                return;
+            }
+
+            try {
+                await SDPIComponents.streamDeckClient.send("sendToPlugin", {
+                    event: "login",
+                    payload: { serverURL: serverURL, username: username, password: password }
+                });
+                setStatus('Login gesendet...', '#44cc44');
+            } catch (e) {
+                setStatus('Fehler: ' + e.message, '#ff4444');
+            }
+        }
+
+        async function chooseCharacter(charID) {
+            setStatus('Wähle Charakter...', '#ffcc00');
+            try {
+                await SDPIComponents.streamDeckClient.send("sendToPlugin", {
+                    event: "select-character",
+                    payload: { charID: charID }
+                });
+            } catch (e) {
+                setStatus('Fehler: ' + e.message, '#ff4444');
+            }
+        }
+
+        function renderChars(chars, activeID) {
+            if (!chars || chars.length === 0) {
+                charFormEl.innerHTML = '<div style="color:#888;font-size:12px;">Keine Charaktere gefunden.</div>';
+                return;
+            }
+
+            const list = document.createElement('div');
+            chars.forEach((c) => {
+                const card = document.createElement('div');
+                card.className = 'char-card' + (c.id === activeID ? ' active' : '');
+                const activeLabel = c.id === activeID ? ' ✓' : '';
+                card.innerHTML = '<div class="name">' + c.name + activeLabel + '</div><div class="job">' + c.job + '</div>';
+                card.onclick = () => {
+                    if (c.id !== activeID) chooseCharacter(c.id);
+                };
+                list.appendChild(card);
+            });
+            charFormEl.innerHTML = '';
+            charFormEl.appendChild(list);
+        }
+
+        SDPIComponents.streamDeckClient.sendToPropertyInspector.subscribe((data) => {
+            const payload = data?.payload ?? {};
+            if (payload.event === 'session') {
+                if (payload.credentials) {
+                    ['serverURL', 'username', 'password'].forEach((key) => {
+                        const el = document.querySelector('[setting="' + key + '"]');
+                        if (el && payload.credentials[key]) {
+                            el.value = payload.credentials[key];
+                        }
+                    });
+                }
+                if (payload.session && payload.chars) {
+                    setStatus('Angemeldet als ' + payload.session.charName, '#44cc44');
+                    renderChars(payload.chars, payload.session.charID);
+                } else if (payload.session && payload.error) {
+                    setStatus('Sitzung konnte nicht geladen werden', '#ff4444');
+                    renderChars([]);
+                }
+            } else if (payload.event === 'login-success') {
+                if (payload.chars) {
+                    renderChars(payload.chars, payload.charID);
+                }
+                setStatus(
+                    payload.needsCharSelection ? 'Charakter auswählen' : 'Login erfolgreich' + (payload.charName ? ': ' + payload.charName : ''),
+                    '#44cc44'
+                );
+            } else if (payload.event === 'chars') {
+                renderChars(payload.chars || [], undefined);
+                setStatus('Charakter auswählen');
+            } else if (payload.event === 'login-error') {
+                setStatus('Fehler: ' + (payload.message || 'Unbekannt'), '#ff4444');
+            }
+        });
+
+        SDPIComponents.streamDeckClient.send("sendToPlugin", {
+            event: "get-session"
+        });
+    </script>
+</body>
+
+</html>
