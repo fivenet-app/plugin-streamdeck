@@ -2,6 +2,8 @@
 
 StreamDeck plugin for FiveM servers with FiveNet integration.
 
+> **Notice:** FiveNet Mobile is a **community project** in the `fivenet-app` organization and is **not directly supported by the FiveNet team**. See `NOTICE` for details.
+
 ## Installation
 
 1. Download the latest `.streamDeckPlugin` file from the [Releases](https://github.com/fivenet/plugin-streamdeck/releases) section.
