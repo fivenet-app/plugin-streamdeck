@@ -6,7 +6,7 @@ StreamDeck plugin for FiveM servers with FiveNet integration.
 
 ## Installation
 
-1. Download the latest `.streamDeckPlugin` file from the [Releases](https://github.com/fivenet/plugin-streamdeck/releases) section.
+1. Download the latest `.streamDeckPlugin` file from the [Releases](https://github.com/fivenet-app/plugin-streamdeck/releases) section.
 2. Open the file, the StreamDeck application imports the plugin automatically.
 3. Place the action keys on your device and log in via the **Login** key.
 
@@ -32,7 +32,7 @@ StreamDeck plugin for FiveM servers with FiveNet integration.
 
 ## Building from source
 
-1. Clone the repository: `git clone https://github.com/fivenet/plugin-streamdeck.git`
+1. Clone the repository: `git clone https://github.com/fivenet-app/plugin-streamdeck.git`
 2. Install the dependencies: `npm install`
 3. Build the plugin: `npm run build`
 4. The built plugin lands in `com.fivenet.streamdeck-plugin.sdPlugin/`.

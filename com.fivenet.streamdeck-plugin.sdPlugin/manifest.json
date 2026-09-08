@@ -160,7 +160,7 @@
     "CodePath": "bin/plugin.js",
     "Description": "StreamDeck-Plugin für FiveM-Server mit FiveNet-Integration",
     "Icon": "imgs/plugin/marketplace",
-    "URL": "https://github.com/fivenet/plugin-streamdeck",
+    "URL": "https://github.com/fivenet-app/plugin-streamdeck",
     "SDKVersion": 3,
     "Software": {
         "MinimumVersion": "7.1"
