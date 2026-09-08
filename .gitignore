@@ -1,6 +1,12 @@
+# Node
+node_modules/
+npm-debug.log*
+.tsbuildinfo
+
 # Build-Artefakte
 *.streamDeckPlugin
 /releases/*.streamDeckPlugin
+.direnv/
 
 # Logs
 logs/

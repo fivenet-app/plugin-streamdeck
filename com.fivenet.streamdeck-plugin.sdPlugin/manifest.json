@@ -1,12 +1,12 @@
 {
     "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
     "Name": "FiveNet for StreamDeck",
-    "Version": "0.4.1.0",
+    "Version": "0.4.2.0",
     "Author": "PhilTec-Philip",
     "Actions": [
         {
             "Name": "Login",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.login",
+            "UUID": "com.fivenet.streamdeck-plugin.login",
             "Icon": "imgs/actions/login/icon",
             "Tooltip": "FiveNet-Server anmelden",
             "PropertyInspectorPath": "ui/login.html",
@@ -24,7 +24,7 @@
         },
         {
             "Name": "Offene Dispatches",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.dispatch-status",
+            "UUID": "com.fivenet.streamdeck-plugin.dispatch-status",
             "Icon": "imgs/actions/dispatch-status/icon",
             "Tooltip": "Zeigt die Anzahl offener Einsätze",
             "Controllers": [
@@ -40,7 +40,7 @@
         },
         {
             "Name": "Dispatch-Status Anzeige",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.dispatch-status-display",
+            "UUID": "com.fivenet.streamdeck-plugin.dispatch-status-display",
             "Icon": "imgs/actions/dispatch-status-display/icon",
             "Tooltip": "Zeigt den Status des angenommenen Einsatzes",
             "Controllers": [
@@ -56,7 +56,7 @@
         },
         {
             "Name": "Dispatch-Status setzen",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.dispatch-setzen",
+            "UUID": "com.fivenet.streamdeck-plugin.dispatch-setzen",
             "Icon": "imgs/actions/dispatch-setzen/icon",
             "Tooltip": "Setzt den Status des angenommenen Einsatzes",
             "PropertyInspectorPath": "ui/dispatch-setzen.html",
@@ -73,7 +73,7 @@
         },
         {
             "Name": "Dispatch annehmen/ablehnen",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.take-dispatch",
+            "UUID": "com.fivenet.streamdeck-plugin.take-dispatch",
             "Icon": "imgs/actions/take-dispatch/icon",
             "Tooltip": "Nimmt einen zugewiesenen Einsatz an oder lehnt ihn ab",
             "PropertyInspectorPath": "ui/take-dispatch.html",
@@ -90,7 +90,7 @@
         },
         {
             "Name": "Einheit-Status setzen",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.unit-status",
+            "UUID": "com.fivenet.streamdeck-plugin.unit-status",
             "Icon": "imgs/actions/unit-status/icon",
             "Tooltip": "Setzt den Status deiner Einheit",
             "PropertyInspectorPath": "ui/unit-status.html",
@@ -107,7 +107,7 @@
         },
         {
             "Name": "Einheit-Status Anzeige",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.unit-status-display",
+            "UUID": "com.fivenet.streamdeck-plugin.unit-status-display",
             "Icon": "imgs/actions/unit-status-display/icon",
             "Tooltip": "Zeigt den aktuellen Status deiner Einheit",
             "Controllers": [
@@ -123,7 +123,7 @@
         },
         {
             "Name": "Einheit beitreten",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.join-unit",
+            "UUID": "com.fivenet.streamdeck-plugin.join-unit",
             "Icon": "imgs/actions/join-unit/icon",
             "Tooltip": "Tritt einer Einheit bei",
             "PropertyInspectorPath": "ui/join-unit.html",
@@ -140,7 +140,7 @@
         },
         {
             "Name": "Benachrichtigungen",
-            "UUID": "com.philtec-philip.fivenet-streamdeck.notification-count",
+            "UUID": "com.fivenet.streamdeck-plugin.notification-count",
             "Icon": "imgs/actions/notification-count/icon",
             "Tooltip": "Zeigt Anzahl ungelesener Benachrichtigungen",
             "Controllers": [
@@ -179,5 +179,5 @@
         "Version": "24",
         "Debug": "enabled"
     },
-    "UUID": "com.philtec-philip.fivenet-streamdeck"
+    "UUID": "com.fivenet.streamdeck-plugin"
 }
