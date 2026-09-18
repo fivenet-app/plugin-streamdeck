@@ -1,11 +1,9 @@
-# Build-Artefakte
-*.streamDeckPlugin
-/releases/*.streamDeckPlugin
+# Node.js
+node_modules/
 
-# Logs
-logs/
-*.log
+# Stream Deck files
+*.sdPlugin/bin
+*.sdPlugin/logs
 
-# System
-.DS_Store
-Thumbs.db
+# VS-Code files
+.vscode/

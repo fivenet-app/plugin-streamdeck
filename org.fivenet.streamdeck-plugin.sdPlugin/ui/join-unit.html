@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Einheit beitreten</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <style>
+        #status {
+            margin: 10px 0;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            background: #2b2f38;
+        }
+        #status.current {
+            border-left: 3px solid #34c759;
+            color: #8ce99a;
+        }
+        #status.none {
+            border-left: 3px solid #1d4ed8;
+            color: #cbd5e1;
+        }
+        #status.error {
+            border-left: 3px solid #dc2626;
+            color: #fca5a5;
+        }
+        .hint {
+            color: #9ca3af;
+            font-size: 11px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <sdpi-item label="Einheit">
+        <sdpi-select id="unit-select" placeholder="— Einheit wählen —">
+            <option value="">— Einheit wählen —</option>
+        </sdpi-select>
+    </sdpi-item>
+
+    <div id="status" class="none">Einheit wird geladen...</div>
+
+    <div class="hint">
+        Die Auswahl wird gespeichert. Der Beitritt erfolgt durch einen Druck auf die Taste am Stream Deck.
+    </div>
+
+    <script>
+        const select = document.getElementById('unit-select');
+        const status = document.getElementById('status');
+        let loaded = false;
+        let timeoutId = null;
+        let suppressEcho = false;
+
+        function setStatus(text, cls) {
+            status.textContent = text;
+            status.className = cls || 'none';
+        }
+
+        function optionSignature(opt) {
+            return opt.value + '\u0000' + (opt.disabled ? '1' : '0') + '\u0000' + opt.textContent;
+        }
+
+        function fillOptions(items, configuredUnitId) {
+            const build = [{ value: '', label: '— Einheit wählen —', disabled: false }];
+            (items || []).forEach((it) => build.push({ value: it.value, label: it.label, disabled: false }));
+
+            const current = Array.from(select.querySelectorAll('option')).map(optionSignature).join('|');
+            const next = build.map((o) => o.value + '\u0000' + (o.disabled ? '1' : '0') + '\u0000' + o.label).join('|');
+            if (current !== next) {
+                const frag = document.createDocumentFragment();
+                build.forEach((o) => {
+                    const opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.textContent = o.label;
+                    if (o.disabled) {
+                        opt.disabled = true;
+                    }
+                    frag.appendChild(opt);
+                });
+                select.replaceChildren(frag);
+            }
+
+            let want = '';
+            if (configuredUnitId != null) {
+                want = String(configuredUnitId);
+                const exists = Array.from(select.querySelectorAll('option')).some((opt) => opt.value === want);
+                if (!exists) {
+                    want = '';
+                }
+            }
+            suppressEcho = true;
+            try {
+                if (select.value !== want) {
+                    select.value = want;
+                }
+            } finally {
+                suppressEcho = false;
+            }
+        }
+
+        select.addEventListener('valuechange', function() {
+            if (suppressEcho) {
+                return;
+            }
+            SDPIComponents.streamDeckClient.send("sendToPlugin", {
+                event: "unit-confirm",
+                unitID: select.value
+            });
+        });
+
+        SDPIComponents.streamDeckClient.sendToPropertyInspector.subscribe(function(ev) {
+            if (ev.payload && ev.payload.event === 'units') {
+                loaded = true;
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                    timeoutId = null;
+                }
+                if (ev.payload.ownUnitName) {
+                    setStatus('Aktuell: ' + ev.payload.ownUnitName, 'current');
+                } else {
+                    setStatus('Noch keine Einheit. Einheit auswählen, dann Taste drücken.', 'none');
+                }
+                if (ev.payload.items && ev.payload.items.length === 0) {
+                    setStatus('Keine Einheiten geladen. Server-Einstellungen bzw. Sitzung prüfen.', 'error');
+                } else {
+                    fillOptions(ev.payload.items, ev.payload.configuredUnitId);
+                }
+            }
+        });
+
+        SDPIComponents.streamDeckClient.send("sendToPlugin", {
+            event: "units"
+        });
+
+        timeoutId = setTimeout(function() {
+            if (!loaded) {
+                setStatus('Keine Antwort vom Plugin. Läuft die Sitzung? PI ggf. neu öffnen.', 'error');
+            }
+        }, 6000);
+    </script>
+</body>
+
+</html>
