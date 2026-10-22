@@ -16,13 +16,13 @@ export class DispatchSetzenAction extends SingletonAction<DispatchSetzenSettings
 	private unregister = new Map<string, () => void>();
 
 	override async onWillAppear(ev: WillAppearEvent<DispatchSetzenSettings>): Promise<void> {
-		const action = ev.action as KeyAction;
+		const action = ev.action as KeyAction<DispatchSetzenSettings>;
 		this.unregister.set(ev.action.id, registerRenderer(ev.action.id, () => this.refreshCurrent(action), 0));
 		await this.refreshCurrent(action);
 	}
 
 	override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<DispatchSetzenSettings>): Promise<void> {
-		await this.refreshCurrent(ev.action as KeyAction);
+		await this.refreshCurrent(ev.action as KeyAction<DispatchSetzenSettings>);
 	}
 
 	override onWillDisappear(ev: WillDisappearEvent<DispatchSetzenSettings>): void {
@@ -34,11 +34,11 @@ export class DispatchSetzenAction extends SingletonAction<DispatchSetzenSettings
 		clearKeyRender(ev.action.id);
 	}
 
-	private async refreshCurrent(action: KeyAction): Promise<void> {
+	private async refreshCurrent(action: KeyAction<DispatchSetzenSettings>): Promise<void> {
 		return this.refresh(action, await action.getSettings());
 	}
 
-	private async refresh(action: KeyAction, settings: DispatchSetzenSettings): Promise<void> {
+	private async refresh(action: KeyAction<DispatchSetzenSettings>, settings: DispatchSetzenSettings): Promise<void> {
 		const target = settings.status ?? "enroute";
 
 		if (isSessionExpired()) {

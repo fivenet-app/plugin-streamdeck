@@ -13,7 +13,8 @@ import { NotificationCountAction } from "./actions/notification-count";
 import { setSession } from "./fivenet/auth";
 import { setSyncRealtimeProvider, startSyncLoop } from "./fivenet/sync";
 import { configureRealtime, isRealtimeActive } from "./fivenet/realtime";
-import { initSessionTracking } from "./fivenet/session";
+import { initSessionTracking, setAutoReloginAttempt } from "./fivenet/session";
+import { tryAutoRelogin } from "./fivenet/auto-relogin";
 import type { GlobalSettings } from "./settings";
 
 streamDeck.logger.setLevel("info");
@@ -24,6 +25,9 @@ process.on("unhandledRejection", (reason) => {
 
 setSyncRealtimeProvider(() => isRealtimeActive());
 initSessionTracking();
+setAutoReloginAttempt(() => {
+	void tryAutoRelogin();
+});
 
 streamDeck.actions.registerAction(new LoginAction());
 streamDeck.actions.registerAction(new CharSelectAction());
@@ -39,6 +43,9 @@ streamDeck.actions.registerAction(new NotificationCountAction());
 async function restoreSession(): Promise<void> {
 	try {
 		const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
+		if (settings.autoRelogin === undefined) {
+			await streamDeck.settings.setGlobalSettings({ ...settings, autoRelogin: true });
+		}
 		if (settings.serverURL && settings.accountToken && settings.userToken) {
 			setSession(settings.serverURL, settings.accountToken, settings.userToken);
 			configureRealtime(settings.serverURL, settings.userToken, settings.accountToken);

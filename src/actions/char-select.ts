@@ -45,7 +45,7 @@ export class CharSelectAction extends SingletonAction<CharSelectSettings> {
 		await sendImage(action, svgDataUri(charSelectSvg(72, locked)));
 	}
 
-	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, JsonObject>): Promise<void> {
+	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, CharSelectSettings>): Promise<void> {
 		const payload = ev.payload as any;
 		const event = payload?.event;
 
@@ -53,7 +53,7 @@ export class CharSelectAction extends SingletonAction<CharSelectSettings> {
 			await this.sendChars(ev.action as KeyAction<CharSelectSettings>);
 		} else if (event === "char-confirm") {
 			const data = payload?.payload ?? {};
-			const settings = await ev.action.getSettings<CharSelectSettings>();
+			const settings = await ev.action.getSettings();
 			const actionKey = ev.action as KeyAction<CharSelectSettings>;
 			if (data.charID === "") {
 				if (settings.charID || settings.charName) {

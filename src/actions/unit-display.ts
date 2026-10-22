@@ -1,4 +1,5 @@
 import streamDeck, { action, SingletonAction, type KeyAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
+import type { JsonObject } from "@elgato/utils";
 import { getActiveCharId, isOwnUnit } from "../fivenet/centrum";
 import { unitDisplaySvg, UNIT_STATUS_LABELS, unitStatusKey, statusTitle, offlineSvg, svgDataUri } from "../fivenet/icons";
 import { getCachedUnits, isOffline, NEED_UNITS, registerRenderer } from "../fivenet/sync";
@@ -10,7 +11,7 @@ export class UnitStatusDisplayAction extends SingletonAction {
 	private unregister = new Map<string, () => void>();
 
 	override async onWillAppear(ev: WillAppearEvent): Promise<void> {
-		const action = ev.action as KeyAction;
+		const action = ev.action as KeyAction<JsonObject>;
 		this.unregister.set(ev.action.id, registerRenderer(ev.action.id, () => this.refresh(action), NEED_UNITS));
 		await this.refresh(action);
 	}
@@ -24,7 +25,7 @@ export class UnitStatusDisplayAction extends SingletonAction {
 		clearKeyRender(ev.action.id);
 	}
 
-	private async refresh(action: KeyAction): Promise<void> {
+	private async refresh(action: KeyAction<JsonObject>): Promise<void> {
 		if (isSessionExpired()) {
 			await sendSessionExpired(action);
 			return;

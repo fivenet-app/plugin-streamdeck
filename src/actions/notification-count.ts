@@ -1,4 +1,5 @@
 import streamDeck, { action, SingletonAction, type KeyAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
+import type { JsonObject } from "@elgato/utils";
 import { getClient } from "../fivenet/auth";
 import { GetNotificationsRequest, GetNotificationsResponse, Pagination } from "../fivenet/messages";
 import { counterSvg, offlineSvg, statusTitle, svgDataUri } from "../fivenet/icons";
@@ -22,7 +23,7 @@ export class NotificationCountAction extends SingletonAction {
 			ev.action.id,
 			onNotificationCount((count) => {
 				this.pushedCounts.set(ev.action.id, count);
-				void this.renderCount(ev.action as KeyAction, count);
+				void this.renderCount(ev.action as KeyAction<JsonObject>, count);
 			}),
 		);
 
@@ -48,7 +49,7 @@ export class NotificationCountAction extends SingletonAction {
 	}
 
 	private async refresh(ev: WillAppearEvent): Promise<void> {
-		const action = ev.action as KeyAction;
+		const action = ev.action as KeyAction<JsonObject>;
 
 		try {
 			if (isSessionExpired()) {
@@ -94,7 +95,7 @@ export class NotificationCountAction extends SingletonAction {
 		}
 	}
 
-	private async renderCount(action: KeyAction, unread: number): Promise<void> {
+	private async renderCount(action: KeyAction<JsonObject>, unread: number): Promise<void> {
 		await sendTitle(action, "");
 		await sendImage(action, svgDataUri(counterSvg(unread, unread > 0 ? "neu" : "keine", "#dc2626")));
 	}

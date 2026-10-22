@@ -1,7 +1,7 @@
 {
     "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
     "Name": "FiveNet for StreamDeck",
-    "Version": "0.4.3.0",
+    "Version": "0.4.4.0",
     "Author": "PhilTec-Philip",
     "Actions": [
         {
@@ -178,7 +178,7 @@
     "CodePath": "bin/plugin.js",
     "Description": "StreamDeck-Plugin für FiveM-Server mit FiveNet-Integration",
     "Icon": "imgs/plugin/marketplace",
-    "URL": "https://github.com/fivenet/plugin-streamdeck",
+    "URL": "https://github.com/fivenet-app/plugin-streamdeck",
     "SDKVersion": 3,
     "Software": {
         "MinimumVersion": "7.1"

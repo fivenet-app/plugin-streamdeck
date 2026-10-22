@@ -51,7 +51,7 @@ export class JoinUnitAction extends SingletonAction<JoinUnitSettings> {
 		await this.joinConfigured(ev.action as KeyAction<JoinUnitSettings>, Number(unitID));
 	}
 
-	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, JsonObject>): Promise<void> {
+	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, JoinUnitSettings>): Promise<void> {
 		const payload = ev.payload as any;
 		const event = payload?.event;
 

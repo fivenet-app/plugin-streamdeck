@@ -8,18 +8,18 @@
     "devDependencies": {
         "@elgato/cli": "^1.9.0",
         "@rollup/plugin-commonjs": "^29.0.2",
-        "@rollup/plugin-node-resolve": "^15.2.2",
+        "@rollup/plugin-node-resolve": "^16.0.0",
         "@rollup/plugin-terser": "^1.0.0",
         "@rollup/plugin-typescript": "^12.1.0",
-        "@tsconfig/node20": "^20.1.2",
-        "@types/node": "~24.1.0",
+        "@tsconfig/node22": "^22.0.0",
+        "@types/node": "~24.19.0",
         "@types/ws": "^8.5.14",
         "rollup": "^4.0.2",
         "tslib": "^2.6.2",
         "typescript": "^5.2.2"
     },
     "dependencies": {
-        "@elgato/streamdeck": "^2.0.0",
+        "@elgato/streamdeck": "^3.0.0",
         "@mdi/js": "^7.4.47",
         "ws": "^8.18.0"
     }

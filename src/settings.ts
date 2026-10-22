@@ -6,6 +6,7 @@ export type GlobalSettings = {
 	userToken?: string;
 	charID?: number;
 	charName?: string;
+	autoRelogin?: boolean;
 };
 
 export type LoginSettings = Record<string, never>;

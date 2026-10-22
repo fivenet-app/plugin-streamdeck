@@ -1,19 +1,20 @@
-import streamDeck, { action, SingletonAction, type WillAppearEvent, type WillDisappearEvent, type SendToPluginEvent, type KeyAction } from "@elgato/streamdeck";
+import streamDeck, { action, SingletonAction, type WillAppearEvent, type WillDisappearEvent, type SendToPluginEvent, type KeyAction, type KeyDownEvent } from "@elgato/streamdeck";
 import type { JsonValue, JsonObject } from "@elgato/utils";
 import { login, selectCharacter, getCharacters, setSession } from "../fivenet/auth";
 import { loginSvg, svgDataUri, wrapName } from "../fivenet/icons";
 import { invalidateSessionUnits, invalidateCaches, registerRenderer, notifyAllRenderers } from "../fivenet/sync";
 import { configureRealtime } from "../fivenet/realtime";
 import { isSessionExpired, clearSessionExpired } from "../fivenet/session";
-import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
-import type { GlobalSettings } from "../settings";
+import { resetAutoReloginState, reloginNow } from "../fivenet/auto-relogin";
+import { clearKeyRender, sendImage, sendTitle, sendSessionExpired, sendNotLoggedIn } from "../fivenet/render";
+import type { GlobalSettings, LoginSettings } from "../settings";
 
 @action({ UUID: "org.fivenet.streamdeck-plugin.login" })
 export class LoginAction extends SingletonAction {
 	private unregister = new Map<string, () => void>();
 
 	override async onWillAppear(ev: WillAppearEvent): Promise<void> {
-		const action = ev.action as KeyAction;
+		const action = ev.action as KeyAction<JsonObject>;
 		this.unregister.set(ev.action.id, registerRenderer(ev.action.id, () => this.render(action), 0));
 		await this.render(action);
 		await this.sendSessionState();
@@ -28,14 +29,42 @@ export class LoginAction extends SingletonAction {
 		clearKeyRender(ev.action.id);
 	}
 
-	private async render(action: KeyAction): Promise<void> {
+	private async render(action: KeyAction<JsonObject>): Promise<void> {
 		if (isSessionExpired()) {
 			await sendSessionExpired(action);
 			return;
 		}
 		const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
+		if (!settings.serverURL || !settings.accountToken || !settings.charName) {
+			await sendNotLoggedIn(action);
+			return;
+		}
 		await sendTitle(action, settings.charName ? wrapName(settings.charName) : "Login");
 		await sendImage(action, svgDataUri(loginSvg()));
+	}
+
+	override async onKeyDown(ev: KeyDownEvent<LoginSettings>): Promise<void> {
+		const action = ev.action as KeyAction<JsonObject>;
+		try {
+			const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
+			if (!settings.serverURL || !settings.username || !settings.password) {
+				await action.showAlert();
+				streamDeck.logger.warn("Re-Login per Tastendruck: Keine Zugangsdaten gespeichert.");
+				return;
+			}
+
+			streamDeck.logger.info("Re-Login per Tastendruck gestartet.");
+			const ok = await reloginNow();
+			if (ok) {
+				await action.showOk();
+			} else {
+				await action.showAlert();
+			}
+			await this.render(action);
+		} catch (error) {
+			streamDeck.logger.error(`Re-Login per Tastendruck fehlgeschlagen: ${error}`);
+			await action.showAlert();
+		}
 	}
 
 	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, JsonObject>): Promise<void> {
@@ -121,6 +150,7 @@ export class LoginAction extends SingletonAction {
 				});
 				configureRealtime(serverURL, result.accountToken, result.accountToken);
 				clearSessionExpired();
+				resetAutoReloginState();
 
 				await streamDeck.ui.sendToPropertyInspector({ event: "login-success", chars, needsCharSelection: true });
 				await notifyAllRenderers();
@@ -131,7 +161,9 @@ export class LoginAction extends SingletonAction {
 			const charID = activeChar?.id;
 			const charName = activeChar ? `${activeChar.firstname} ${activeChar.lastname}`.trim() : undefined;
 
+			const existing = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
 			const globalSettings: GlobalSettings = {
+				...existing,
 				serverURL,
 				username,
 				password,
@@ -146,6 +178,7 @@ export class LoginAction extends SingletonAction {
 			configureRealtime(serverURL, result.userToken, result.accountToken);
 			invalidateSessionUnits();
 			clearSessionExpired();
+			resetAutoReloginState();
 			await streamDeck.ui.sendToPropertyInspector({ event: "login-success", chars, needsCharSelection: false, charID, charName });
 			await notifyAllRenderers();
 		} catch (error) {
@@ -179,6 +212,7 @@ export class LoginAction extends SingletonAction {
 			invalidateCaches();
 			invalidateSessionUnits();
 			clearSessionExpired();
+			resetAutoReloginState();
 			await streamDeck.ui.sendToPropertyInspector({ event: "login-success", needsCharSelection: false, charID, charName });
 			await notifyAllRenderers();
 		} catch (error) {

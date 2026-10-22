@@ -17,7 +17,7 @@ export class TakeDispatchAction extends SingletonAction<TakeDispatchSettings> {
 	private blinks = new Map<string, () => void>();
 
 	override async onWillAppear(ev: WillAppearEvent<TakeDispatchSettings>): Promise<void> {
-		const action = ev.action as KeyAction;
+		const action = ev.action as KeyAction<TakeDispatchSettings>;
 		this.unregister.set(ev.action.id, registerRenderer(ev.action.id, () => this.render(action)));
 		await this.render(action);
 	}
@@ -42,7 +42,7 @@ export class TakeDispatchAction extends SingletonAction<TakeDispatchSettings> {
 	}
 
 	override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<TakeDispatchSettings>): Promise<void> {
-		await this.render(ev.action as KeyAction);
+		await this.render(ev.action as KeyAction<TakeDispatchSettings>);
 	}
 
 	private async render(action: KeyAction<TakeDispatchSettings>): Promise<void> {
