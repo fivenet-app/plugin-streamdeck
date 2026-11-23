@@ -4,6 +4,7 @@ import { getClient } from "../fivenet/auth";
 import { JoinUnitRequest, JoinUnitResponse, type Unit } from "../fivenet/messages";
 import { getActiveCharId, isOwnUnit } from "../fivenet/centrum";
 import { joinUnitSvg, wrapTitle, svgDataUri, offlineSvg, statusTitle, mdiIconPath } from "../fivenet/icons";
+import { t } from "../i18n";
 import { getCachedUnits, invalidateCaches, invalidateSessionUnits, isOffline, registerRenderer } from "../fivenet/sync";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
 import { isSessionExpired } from "../fivenet/session";
@@ -73,7 +74,7 @@ export class JoinUnitAction extends SingletonAction<JoinUnitSettings> {
 			return;
 		}
 		if (isOffline()) {
-			await sendTitle(action, statusTitle("offline"));
+			await sendTitle(action, statusTitle(t("title.offline")));
 			await sendImage(action, svgDataUri(offlineSvg()));
 			return;
 		}
@@ -93,7 +94,7 @@ export class JoinUnitAction extends SingletonAction<JoinUnitSettings> {
 		} catch (error) {
 			streamDeck.logger.debug(`Join unit render failed: ${error}`);
 		}
-		await sendTitle(action, "Einheit\nwählen");
+		await sendTitle(action, t("title.selectUnit"));
 		await sendImage(action, svgDataUri(joinUnitSvg()));
 	}
 

@@ -2,7 +2,8 @@ import streamDeck, { action, SingletonAction, type KeyAction, type KeyDownEvent,
 import { getClient } from "../fivenet/auth";
 import { UpdateDispatchStatusRequest, UpdateDispatchStatusResponse } from "../fivenet/messages";
 import { findOwnDispatch, getActiveCharId, isOwnUnit } from "../fivenet/centrum";
-import { dispatchStatusSvg, DISPATCH_STATUS_LABELS, statusDispatchEnum, statusTitle, svgDataUri, offlineSvg } from "../fivenet/icons";
+import { dispatchStatusSvg, dispatchStatusLabel, statusDispatchEnum, statusTitle, svgDataUri, offlineSvg } from "../fivenet/icons";
+import { t } from "../i18n";
 import { getCachedDispatches, getCachedUnits, invalidateCaches, isOffline, notifyAllRenderers, registerRenderer } from "../fivenet/sync";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
 import { isSessionExpired } from "../fivenet/session";
@@ -47,12 +48,12 @@ export class DispatchSetzenAction extends SingletonAction<DispatchSetzenSettings
 		}
 
 		if (isOffline()) {
-			await sendTitle(action, statusTitle("offline"));
+			await sendTitle(action, statusTitle(t("title.offline")));
 			await sendImage(action, svgDataUri(offlineSvg()));
 			return;
 		}
 
-		await sendTitle(action, statusTitle(DISPATCH_STATUS_LABELS[target] ?? target));
+		await sendTitle(action, statusTitle(dispatchStatusLabel(target)));
 		await sendImage(action, svgDataUri(dispatchStatusSvg(target)));
 	}
 
@@ -68,23 +69,23 @@ export class DispatchSetzenAction extends SingletonAction<DispatchSetzenSettings
 		try {
 			const client = getClient();
 			if (!client) {
-				throw new Error("Keine Verbindung zum Server");
+				throw new Error(t("error.noServer"));
 			}
 
 			const charID = await getActiveCharId();
 			if (!charID) {
-				throw new Error("Kein Charakter ausgewählt");
+				throw new Error(t("error.noCharacter"));
 			}
 
 			const [units, dispatches] = await Promise.all([getCachedUnits(charID), getCachedDispatches(charID)]);
 			const own = units.find((u) => isOwnUnit(u, charID));
 			if (!own) {
-				throw new Error("Keine eigene Einheit gefunden");
+				throw new Error(t("error.noOwnUnit"));
 			}
 
 			const ownDispatch = findOwnDispatch(dispatches, own.id);
 			if (!ownDispatch) {
-				throw new Error("Kein angenommener Einsatz");
+				throw new Error(t("error.noAcceptedDispatch"));
 			}
 
 			const req = new UpdateDispatchStatusRequest(ownDispatch.id, dispatchStatus);

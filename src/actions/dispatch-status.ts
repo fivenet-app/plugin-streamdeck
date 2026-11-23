@@ -3,6 +3,7 @@ import type { JsonObject } from "@elgato/utils";
 import { getClient } from "../fivenet/auth";
 import { getActiveCharId, isOpenDispatch } from "../fivenet/centrum";
 import { counterSvg, offlineSvg, statusTitle, svgDataUri } from "../fivenet/icons";
+import { t } from "../i18n";
 import { getCachedDispatches, isOffline, NEED_DISPATCHES, registerRenderer } from "../fivenet/sync";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
 import { isSessionExpired } from "../fivenet/session";
@@ -33,7 +34,7 @@ export class DispatchStatusAction extends SingletonAction {
 				return;
 			}
 			if (isOffline()) {
-				await sendTitle(action, statusTitle("offline"));
+				await sendTitle(action, statusTitle(t("title.offline")));
 				await sendImage(action, svgDataUri(offlineSvg()));
 				return;
 			}
@@ -47,14 +48,14 @@ export class DispatchStatusAction extends SingletonAction {
 			const charID = await getActiveCharId();
 			if (!charID) {
 				await sendTitle(action, "");
-				await sendImage(action, svgDataUri(counterSvg(0, "offen")));
+				await sendImage(action, svgDataUri(counterSvg(0, t("counter.open"))));
 				return;
 			}
 
 			const dispatches = await getCachedDispatches(charID);
 			const openCount = dispatches.reduce((count, d) => count + (isOpenDispatch(d) ? 1 : 0), 0);
 			await sendTitle(action, "");
-			await sendImage(action, svgDataUri(counterSvg(openCount, "offen")));
+			await sendImage(action, svgDataUri(counterSvg(openCount, t("counter.open"))));
 		} catch (error) {
 			streamDeck.logger.error(`Open dispatches refresh failed: ${error}`);
 			await sendTitle(action, "ERR");

@@ -2,7 +2,8 @@ import streamDeck, { action, SingletonAction, type KeyAction, type KeyDownEvent,
 import { getClient } from "../fivenet/auth";
 import { UpdateUnitStatusRequest, UpdateUnitStatusResponse } from "../fivenet/messages";
 import { getActiveCharId, isOwnUnit } from "../fivenet/centrum";
-import { unitStatusSvg, UNIT_STATUS_LABELS, statusUnitEnum, statusTitle, svgDataUri, offlineSvg } from "../fivenet/icons";
+import { unitStatusSvg, unitStatusLabel, statusUnitEnum, statusTitle, svgDataUri, offlineSvg } from "../fivenet/icons";
+import { t } from "../i18n";
 import { getCachedUnits, invalidateCaches, isOffline, NEED_UNITS, notifyAllRenderers, registerRenderer } from "../fivenet/sync";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
 import { isSessionExpired } from "../fivenet/session";
@@ -40,14 +41,14 @@ export class UnitStatusAction extends SingletonAction<UnitStatusSettings> {
 			return;
 		}
 		if (isOffline()) {
-			await sendTitle(action, statusTitle("offline"));
+			await sendTitle(action, statusTitle(t("title.offline")));
 			await sendImage(action, svgDataUri(offlineSvg()));
 			return;
 		}
 
 		const settings = await action.getSettings();
 		const target = settings.status ?? "available";
-		await sendTitle(action, statusTitle(UNIT_STATUS_LABELS[target] ?? target));
+		await sendTitle(action, statusTitle(unitStatusLabel(target)));
 		await sendImage(action, svgDataUri(unitStatusSvg(target)));
 	}
 
@@ -63,18 +64,18 @@ export class UnitStatusAction extends SingletonAction<UnitStatusSettings> {
 		try {
 			const client = getClient();
 			if (!client) {
-				throw new Error("Keine Verbindung zum Server");
+				throw new Error(t("error.noServer"));
 			}
 
 			const charID = await getActiveCharId();
 			if (!charID) {
-				throw new Error("Kein Charakter ausgewählt");
+				throw new Error(t("error.noCharacter"));
 			}
 
 			const units = await getCachedUnits(charID);
 			const own = units.find((u) => isOwnUnit(u, charID));
 			if (!own) {
-				throw new Error("Keine eigene Einheit gefunden");
+				throw new Error(t("error.noOwnUnit"));
 			}
 
 			const req = new UpdateUnitStatusRequest(own.id, unitStatus);

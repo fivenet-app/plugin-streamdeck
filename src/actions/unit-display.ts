@@ -1,7 +1,8 @@
 import streamDeck, { action, SingletonAction, type KeyAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { getActiveCharId, isOwnUnit } from "../fivenet/centrum";
-import { unitDisplaySvg, UNIT_STATUS_LABELS, unitStatusKey, statusTitle, offlineSvg, svgDataUri } from "../fivenet/icons";
+import { unitDisplaySvg, unitStatusLabel, unitStatusKey, statusTitle, offlineSvg, svgDataUri } from "../fivenet/icons";
+import { t } from "../i18n";
 import { getCachedUnits, isOffline, NEED_UNITS, registerRenderer } from "../fivenet/sync";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
 import { isSessionExpired } from "../fivenet/session";
@@ -32,7 +33,7 @@ export class UnitStatusDisplayAction extends SingletonAction {
 		}
 		if (isOffline()) {
 			await sendImage(action, svgDataUri(offlineSvg()));
-			await sendTitle(action, statusTitle("offline"));
+			await sendTitle(action, statusTitle(t("title.offline")));
 			return;
 		}
 
@@ -52,10 +53,10 @@ export class UnitStatusDisplayAction extends SingletonAction {
 
 		if (statusKey) {
 			await sendImage(action, svgDataUri(unitDisplaySvg(statusKey)));
-			await sendTitle(action, statusTitle(UNIT_STATUS_LABELS[statusKey] ?? statusKey));
+			await sendTitle(action, statusTitle(unitStatusLabel(statusKey)));
 		} else {
 			await sendImage(action, svgDataUri(unitDisplaySvg("")));
-			await sendTitle(action, statusTitle("Keine Einheit"));
+			await sendTitle(action, statusTitle(t("title.noUnit")));
 		}
 	}
 }

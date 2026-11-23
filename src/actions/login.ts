@@ -7,6 +7,7 @@ import { configureRealtime } from "../fivenet/realtime";
 import { isSessionExpired, clearSessionExpired } from "../fivenet/session";
 import { resetAutoReloginState, reloginNow } from "../fivenet/auto-relogin";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired, sendNotLoggedIn } from "../fivenet/render";
+import { t } from "../i18n";
 import type { GlobalSettings, LoginSettings } from "../settings";
 
 @action({ UUID: "org.fivenet.streamdeck-plugin.login" })
@@ -39,7 +40,7 @@ export class LoginAction extends SingletonAction {
 			await sendNotLoggedIn(action);
 			return;
 		}
-		await sendTitle(action, settings.charName ? wrapName(settings.charName) : "Login");
+		await sendTitle(action, settings.charName ? wrapName(settings.charName) : t("title.login"));
 		await sendImage(action, svgDataUri(loginSvg()));
 	}
 

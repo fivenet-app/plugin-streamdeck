@@ -1,28 +1,14 @@
 import * as mdi from "@mdi/js";
+import { t } from "../i18n";
 import { StatusDispatch, StatusUnit } from "./messages";
 
-export const UNIT_STATUS_LABELS: Record<string, string> = {
-	available: "Verfügbar",
-	busy: "Beschäftigt",
-	onbreak: "Pause",
-	unavailable: "Nicht verfügbar",
-};
+export function unitStatusLabel(key: string): string {
+	return key ? t(`unit.${key}`, key) : key;
+}
 
-export const DISPATCH_STATUS_LABELS: Record<string, string> = {
-	new: "Neu",
-	unassigned: "Nicht zugewiesen",
-	updated: "Aktualisiert",
-	unit_assigned: "Einheit zugewiesen",
-	unit_unassigned: "Einheit entfernt",
-	unit_accepted: "Einheit angenommen",
-	unit_declined: "Einheit abgelehnt",
-	enroute: "Auf dem Weg",
-	onscene: "Vor Ort",
-	assistance: "Verstärkung",
-	completed: "Abgeschlossen",
-	cancelled: "Abgebrochen",
-	archived: "Archiviert",
-};
+export function dispatchStatusLabel(key: string): string {
+	return key ? t(`dispatch.${key}`, key) : key;
+}
 
 // FiveNet (web) palette: info=blue, warning=yellow, success=green, error=red.
 const INFO_600 = "#2563eb";

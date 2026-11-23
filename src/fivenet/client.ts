@@ -10,9 +10,16 @@ export interface Deserializable<T> {
 }
 
 let authFailureHandler: (() => void) | undefined;
+let charLockHandler: (() => void) | undefined;
 
 export function setAuthFailureHandler(handler: (() => void) | undefined): void {
 	authFailureHandler = handler;
+}
+
+// FiveNet rejects requests with `ErrCharLock` when the character the token was
+// issued for no longer matches the character the player is using in-game.
+export function setCharLockHandler(handler: (() => void) | undefined): void {
+	charLockHandler = handler;
 }
 
 function notifyAuthFailure(): void {
@@ -23,8 +30,44 @@ function notifyAuthFailure(): void {
 	}
 }
 
+function notifyCharLock(): void {
+	try {
+		charLockHandler?.();
+	} catch {
+		// Ignore.
+	}
+}
+
 function isAuthFailure(grpcStatus: string | null, httpStatus?: number): boolean {
 	return grpcStatus === "16" || httpStatus === 401;
+}
+
+function containsErrCharLock(message: string | null): boolean {
+	if (!message) {
+		return false;
+	}
+	if (message.includes("ErrCharLock")) {
+		return true;
+	}
+	try {
+		return decodeURIComponent(message).includes("ErrCharLock");
+	} catch {
+		return false;
+	}
+}
+
+function isCharLockFailure(grpcMessage: string | null): boolean {
+	return containsErrCharLock(grpcMessage);
+}
+
+function reportFailure(grpcStatus: string | null, grpcMessage: string | null, httpStatus?: number): void {
+	if (isCharLockFailure(grpcMessage)) {
+		notifyCharLock();
+		return;
+	}
+	if (isAuthFailure(grpcStatus, httpStatus)) {
+		notifyAuthFailure();
+	}
 }
 
 export class GrpcWebClient {
@@ -145,15 +188,11 @@ export class GrpcWebClient {
 			const grpcStatus = response.headers.get("grpc-status");
 			const grpcMessage = response.headers.get("grpc-message");
 			if (grpcStatus && grpcStatus !== "0") {
-				if (isAuthFailure(grpcStatus, response.status)) {
-					notifyAuthFailure();
-				}
+				reportFailure(grpcStatus, grpcMessage, response.status);
 				void GrpcWebClient.disposeResponse(response);
 				throw new Error(`gRPC ${grpcStatus}: ${grpcMessage ?? "Unknown error"}`);
 			}
-			if (isAuthFailure(null, response.status)) {
-				notifyAuthFailure();
-			}
+			reportFailure(null, grpcMessage, response.status);
 			void GrpcWebClient.disposeResponse(response);
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 		}
@@ -161,9 +200,7 @@ export class GrpcWebClient {
 		const grpcStatusHeader = response.headers.get("grpc-status");
 		if (grpcStatusHeader && grpcStatusHeader !== "0") {
 			const grpcMessage = response.headers.get("grpc-message");
-			if (isAuthFailure(grpcStatusHeader)) {
-				notifyAuthFailure();
-			}
+			reportFailure(grpcStatusHeader, grpcMessage);
 			void GrpcWebClient.disposeResponse(response);
 			throw new Error(`gRPC ${grpcStatusHeader}: ${grpcMessage ?? "Unknown error"}`);
 		}
@@ -171,9 +208,7 @@ export class GrpcWebClient {
 		const { messages, status, message, diagnostics } = await GrpcWebClient.parseResponse(response);
 
 		if (status !== null && status !== 0) {
-			if (isAuthFailure(String(status))) {
-				notifyAuthFailure();
-			}
+			reportFailure(String(status), message);
 			throw new Error(`gRPC ${status}: ${message ?? "Unknown error"}`);
 		}
 
@@ -232,15 +267,11 @@ export class GrpcWebClient {
 			const grpcStatus = response.headers.get("grpc-status");
 			const grpcMessage = response.headers.get("grpc-message");
 			if (grpcStatus && grpcStatus !== "0") {
-				if (isAuthFailure(grpcStatus, response.status)) {
-					notifyAuthFailure();
-				}
+				reportFailure(grpcStatus, grpcMessage, response.status);
 				void GrpcWebClient.disposeResponse(response);
 				throw new Error(`gRPC ${grpcStatus}: ${grpcMessage ?? "Unknown error"}`);
 			}
-			if (isAuthFailure(null, response.status)) {
-				notifyAuthFailure();
-			}
+			reportFailure(null, grpcMessage, response.status);
 			void GrpcWebClient.disposeResponse(response);
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
 		}
@@ -248,9 +279,7 @@ export class GrpcWebClient {
 		const grpcStatusHeader = response.headers.get("grpc-status");
 		if (grpcStatusHeader && grpcStatusHeader !== "0") {
 			const grpcMessage = response.headers.get("grpc-message");
-			if (isAuthFailure(grpcStatusHeader)) {
-				notifyAuthFailure();
-			}
+			reportFailure(grpcStatusHeader, grpcMessage);
 			void GrpcWebClient.disposeResponse(response);
 			throw new Error(`gRPC ${grpcStatusHeader}: ${grpcMessage ?? "Unknown error"}`);
 		}
@@ -258,9 +287,7 @@ export class GrpcWebClient {
 		const { messages, status, message, diagnostics } = await GrpcWebClient.parseResponse(response);
 
 		if (status !== null && status !== 0) {
-			if (isAuthFailure(String(status))) {
-				notifyAuthFailure();
-			}
+			reportFailure(String(status), message);
 			throw new Error(`gRPC ${status}: ${message ?? "Unknown error"}`);
 		}
 

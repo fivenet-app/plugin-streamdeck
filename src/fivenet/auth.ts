@@ -8,6 +8,7 @@ import {
 	ChooseCharacterResponse,
 	Character,
 } from "./messages";
+import { t } from "../i18n";
 
 export interface AuthResult {
 	accountToken: string;
@@ -135,7 +136,7 @@ export async function login(
 	}
 
 	if (chars.length === 0) {
-		throw new Error("Keine Charaktere gefunden");
+		throw new Error(t("error.noCharacters"));
 	}
 
 	return {

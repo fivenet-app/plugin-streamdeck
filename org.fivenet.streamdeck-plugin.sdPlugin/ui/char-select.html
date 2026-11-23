@@ -2,9 +2,10 @@
 <html>
 
 <head lang="en">
-    <title>Charakter auswählen</title>
+    <title data-i18n-title="char.pageTitle">Select Character</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <script src="i18n.js"></script>
     <style>
         #status {
             margin: 10px 0;
@@ -30,129 +31,248 @@
             font-size: 11px;
             margin-top: 12px;
         }
+        .char-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            width: 100%;
+            max-height: 168px;
+            overflow-y: auto;
+        }
+        .char-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            min-height: 28px;
+            margin: 0;
+            padding: 4px 8px;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            background: var(--input-bg-color, #3d3d3d);
+            color: var(--font-color, #d8d8d8);
+            font-family: var(--font-family);
+            font-size: var(--font-size);
+            text-align: left;
+            cursor: pointer;
+        }
+        .char-row:hover:not(.locked) {
+            border-color: #6b7280;
+        }
+        .char-row.selected {
+            border-color: #3b82f6;
+            background: #31445f;
+        }
+        .char-row.locked {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        .char-name {
+            flex: 1 1 auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .char-lock {
+            width: 14px;
+            height: 14px;
+            flex: 0 0 auto;
+            fill: #fbbf24;
+        }
     </style>
 </head>
 
 <body>
-    <sdpi-item label="Charakter">
-        <sdpi-select id="char-select" placeholder="— Charakter wählen —">
-            <option value="">— Charakter wählen —</option>
-        </sdpi-select>
+    <sdpi-item label="Character" data-i18n-label="char.label">
+        <div id="char-list" class="char-list" role="listbox"></div>
     </sdpi-item>
 
-    <div id="status" class="none">Charaktere werden geladen...</div>
+    <div id="status" class="none" data-i18n="char.loading">Loading characters...</div>
 
-    <div class="hint">
-        Die Auswahl wird sofort als konfigurierter Charakter dieser Taste gespeichert. Der Wechsel erfolgt durch einen
-        Druck auf die Taste. Ohne Konfiguration wechselt der Tastendruck zum nächsten verfügbaren Charakter.
-        Durch die Charwechselsperre (FiveNet) gesperrte Charaktere sind mit einem Vorhängeschloss markiert, ausgegraut
-        und werden übersprungen.
+    <div class="hint" data-i18n="char.hint">
+        The selection is saved as the configured character of this key. The switch happens when you press the key.
+        Without a selection, pressing the key cycles to the next available character. Characters locked by the FiveNet
+        character switch lock are marked with a padlock; they can still be configured and become selectable once they
+        are unlocked.
     </div>
 
     <script>
-        const select = document.getElementById('char-select');
-        const status = document.getElementById('status');
+        // mdiLock
+        const LOCK_PATH =
+            "M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z";
+
+        const i18n = window.fivenetI18n;
+        const list = document.getElementById("char-list");
+        const status = document.getElementById("status");
         const names = {};
         const availability = {};
         let loaded = false;
         let timeoutId = null;
-        let suppressEcho = false;
+        let lastPayload = null;
+        let lastSignature = "";
+        let statusRender = function () { return i18n.t("char.loading"); };
 
-        function setStatus(text, cls) {
-            status.textContent = text;
-            status.className = cls || 'none';
+        function setStatus(render, cls) {
+            statusRender = render;
+            status.textContent = render();
+            status.className = cls || "none";
         }
 
-        function optionSignature(opt) {
-            return opt.value + '\u0000' + (opt.disabled ? '1' : '0') + '\u0000' + opt.textContent;
+        function buildLockIcon() {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 24 24");
+            svg.setAttribute("class", "char-lock");
+            svg.setAttribute("aria-hidden", "true");
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", LOCK_PATH);
+            svg.appendChild(path);
+            return svg;
+        }
+
+        function buildRow(id, name, locked, selected) {
+            const row = document.createElement("button");
+            row.type = "button";
+            row.className = "char-row" + (locked ? " locked" : "") + (selected ? " selected" : "");
+            row.dataset.id = id;
+            row.setAttribute("role", "option");
+            row.setAttribute("aria-selected", selected ? "true" : "false");
+            if (locked) {
+                row.title = i18n.t("char.locked");
+            }
+
+            const label = document.createElement("span");
+            label.className = "char-name";
+            label.textContent = name;
+            row.appendChild(label);
+
+            if (locked) {
+                row.appendChild(buildLockIcon());
+            }
+            return row;
+        }
+
+        function signatureOf(build) {
+            return build.map(function (row) {
+                return [row.id, row.locked ? "1" : "0", row.selected ? "1" : "0", row.name].join("\u0000");
+            }).join("|");
         }
 
         function fillOptions(payload) {
-            const build = [{ value: '', label: '— Charakter wählen —', disabled: false }];
-            (payload.chars || []).forEach((c) => {
+            lastPayload = payload;
+            const configured = payload.charID != null ? String(payload.charID) : "";
+            const build = [
+                {
+                    id: "",
+                    name: i18n.t("char.placeholder"),
+                    locked: false,
+                    selected: configured === "",
+                },
+            ];
+
+            (payload.chars || []).forEach(function (c) {
                 names[c.id] = c.name;
                 availability[c.id] = !!c.available;
                 build.push({
-                    value: String(c.id),
-                    label: c.available ? c.name : '\u{1F512} ' + c.name,
-                    disabled: !c.available,
+                    id: String(c.id),
+                    name: c.name,
+                    locked: !c.available,
+                    selected: String(c.id) === configured,
                 });
             });
 
-            const current = Array.from(select.querySelectorAll('option')).map(optionSignature).join('|');
-            const next = build.map((o) => o.value + '\u0000' + (o.disabled ? '1' : '0') + '\u0000' + o.label).join('|');
-            if (current !== next) {
-                const frag = document.createDocumentFragment();
-                build.forEach((o) => {
-                    const opt = document.createElement('option');
-                    opt.value = o.value;
-                    opt.textContent = o.label;
-                    if (o.disabled) {
-                        opt.disabled = true;
-                    }
-                    frag.appendChild(opt);
-                });
-                select.replaceChildren(frag);
-            }
-
-            const configured = payload.charID != null ? String(payload.charID) : '';
-            let want = '';
-            if (configured !== '') {
-                const exists = Array.from(select.querySelectorAll('option')).some((opt) => opt.value === configured);
-                if (exists) {
-                    want = configured;
-                }
-            }
-            suppressEcho = true;
-            try {
-                if (select.value !== want) {
-                    select.value = want;
-                }
-            } finally {
-                suppressEcho = false;
-            }
-        }
-
-        select.addEventListener('valuechange', function() {
-            if (suppressEcho) {
+            const signature = signatureOf(build);
+            if (signature === lastSignature) {
                 return;
             }
-            const id = select.value;
-            const name = (id !== '' && names[id]) ? names[id] : undefined;
-            const avail = (id !== '' && id in availability) ? availability[id] : undefined;
+            lastSignature = signature;
+
+            const frag = document.createDocumentFragment();
+            build.forEach(function (item) {
+                frag.appendChild(buildRow(item.id, item.name, item.locked, item.selected));
+            });
+            list.replaceChildren(frag);
+        }
+
+        function refreshOptions() {
+            if (lastPayload) {
+                fillOptions(lastPayload);
+                return;
+            }
+            const placeholder = document.createElement("button");
+            placeholder.type = "button";
+            placeholder.className = "char-row";
+            placeholder.dataset.id = "";
+            placeholder.setAttribute("role", "option");
+            placeholder.textContent = i18n.t("char.placeholder");
+            list.replaceChildren(placeholder);
+            lastSignature = "";
+        }
+
+        list.addEventListener("click", function (event) {
+            const row = event.target.closest ? event.target.closest(".char-row") : null;
+            if (!row) {
+                return;
+            }
+            const id = row.dataset.id;
+            const name = id !== "" && names[id] ? names[id] : undefined;
+            const avail = id !== "" && id in availability ? availability[id] : undefined;
+
+            Array.prototype.forEach.call(list.querySelectorAll(".char-row"), function (el) {
+                const selected = el === row;
+                el.classList.toggle("selected", selected);
+                el.setAttribute("aria-selected", selected ? "true" : "false");
+            });
+            if (lastPayload) {
+                lastPayload.charID = id;
+            }
+            lastSignature = "";
+
             SDPIComponents.streamDeckClient.send("sendToPlugin", {
                 event: "char-confirm",
-                payload: { charID: id, charName: name, available: avail }
+                payload: { charID: id, charName: name, available: avail },
             });
         });
 
-        SDPIComponents.streamDeckClient.sendToPropertyInspector.subscribe(function(ev) {
-            if (ev.payload && ev.payload.event === 'chars') {
+        SDPIComponents.streamDeckClient.sendToPropertyInspector.subscribe(function (ev) {
+            if (ev.payload && ev.payload.event === "refresh") {
+                SDPIComponents.streamDeckClient.send("sendToPlugin", {
+                    event: "chars",
+                });
+                return;
+            }
+            if (ev.payload && ev.payload.event === "chars") {
                 loaded = true;
                 if (timeoutId) {
                     clearTimeout(timeoutId);
                     timeoutId = null;
                 }
                 if (ev.payload.activeCharName) {
-                    setStatus('Aktiv: ' + ev.payload.activeCharName, 'current');
+                    const active = ev.payload.activeCharName;
+                    setStatus(function () { return i18n.format("char.active", { name: active }); }, "current");
                 } else {
-                    setStatus('Kein Charakter aktiv. Login und Charakterwahl prüfen.', 'none');
+                    setStatus(function () { return i18n.t("char.none"); }, "none");
                 }
                 if (ev.payload.chars && ev.payload.chars.length === 0) {
-                    setStatus('Keine Charaktere geladen. Login prüfen.', 'error');
+                    setStatus(function () { return i18n.t("char.empty"); }, "error");
                 } else {
                     fillOptions(ev.payload);
                 }
             }
         });
 
-        SDPIComponents.streamDeckClient.send("sendToPlugin", {
-            event: "chars"
+        window.addEventListener("fivenet-language", function () {
+            status.textContent = statusRender();
+            refreshOptions();
         });
 
-        timeoutId = setTimeout(function() {
+        refreshOptions();
+        SDPIComponents.streamDeckClient.send("sendToPlugin", {
+            event: "chars",
+        });
+
+        timeoutId = setTimeout(function () {
             if (!loaded) {
-                setStatus('Keine Antwort vom Plugin. Läuft die Sitzung? PI ggf. neu öffnen.', 'error');
+                setStatus(function () { return i18n.t("char.noResponse"); }, "error");
             }
         }, 6000);
     </script>

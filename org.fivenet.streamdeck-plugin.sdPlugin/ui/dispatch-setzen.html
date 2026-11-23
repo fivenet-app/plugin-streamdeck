@@ -2,18 +2,19 @@
 <html>
 
 <head lang="en">
-    <title>Dispatch setzen</title>
+    <title data-i18n-title="dispatchSet.pageTitle">Set Dispatch Status</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <script src="i18n.js"></script>
 </head>
 
 <body>
-    <sdpi-item label="Status">
+    <sdpi-item label="Status" data-i18n-label="dispatchSet.status">
         <sdpi-radio setting="status" columns="2">
-            <option value="enroute">Auf dem Weg</option>
-            <option value="onscene">Vor Ort</option>
-            <option value="assistance">Verstärkung</option>
-            <option value="completed">Abgeschlossen</option>
+            <option value="enroute" data-i18n="dispatchSet.enroute">En route</option>
+            <option value="onscene" data-i18n="dispatchSet.onscene">On scene</option>
+            <option value="assistance" data-i18n="dispatchSet.assistance">Assistance</option>
+            <option value="completed" data-i18n="dispatchSet.completed">Completed</option>
         </sdpi-radio>
     </sdpi-item>
 </body>

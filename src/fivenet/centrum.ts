@@ -10,6 +10,7 @@ import {
 	Dispatch,
 	Unit,
 } from "./messages";
+import { t } from "../i18n";
 import type { GlobalSettings } from "../settings";
 
 export const CLOSED_DISPATCH_STATUSES = [
@@ -36,7 +37,7 @@ export async function getGlobalSettings(): Promise<GlobalSettings> {
 export async function listUnits(): Promise<Unit[]> {
 	const client = getClient();
 	if (!client) {
-		throw new Error("Keine Verbindung zum Server");
+		throw new Error(t("error.noServer"));
 	}
 
 	const req = new ListUnitsRequest();
@@ -65,7 +66,7 @@ export async function findOwnUnit(userId: number): Promise<Unit | undefined> {
 export async function listDispatches(): Promise<Dispatch[]> {
 	const client = getClient();
 	if (!client) {
-		throw new Error("Keine Verbindung zum Server");
+		throw new Error(t("error.noServer"));
 	}
 
 	const req = new ListDispatchesRequest();

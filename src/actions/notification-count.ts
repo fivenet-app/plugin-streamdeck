@@ -3,6 +3,7 @@ import type { JsonObject } from "@elgato/utils";
 import { getClient } from "../fivenet/auth";
 import { GetNotificationsRequest, GetNotificationsResponse, Pagination } from "../fivenet/messages";
 import { counterSvg, offlineSvg, statusTitle, svgDataUri } from "../fivenet/icons";
+import { t } from "../i18n";
 import { isOffline } from "../fivenet/sync";
 import { isRealtimeActive, onNotificationCount } from "../fivenet/realtime";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
@@ -57,7 +58,7 @@ export class NotificationCountAction extends SingletonAction {
 				return;
 			}
 			if (isOffline()) {
-				await sendTitle(action, statusTitle("offline"));
+				await sendTitle(action, statusTitle(t("title.offline")));
 				await sendImage(action, svgDataUri(offlineSvg()));
 				return;
 			}
@@ -97,6 +98,6 @@ export class NotificationCountAction extends SingletonAction {
 
 	private async renderCount(action: KeyAction<JsonObject>, unread: number): Promise<void> {
 		await sendTitle(action, "");
-		await sendImage(action, svgDataUri(counterSvg(unread, unread > 0 ? "neu" : "keine", "#dc2626")));
+		await sendImage(action, svgDataUri(counterSvg(unread, unread > 0 ? t("counter.new") : t("counter.none"), "#dc2626")));
 	}
 }

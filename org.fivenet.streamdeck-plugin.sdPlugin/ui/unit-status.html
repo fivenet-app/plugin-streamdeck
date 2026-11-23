@@ -2,18 +2,19 @@
 <html>
 
 <head lang="en">
-    <title>Einheiten Status</title>
+    <title data-i18n-title="unitStatus.pageTitle">Unit Status</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <script src="i18n.js"></script>
 </head>
 
 <body>
-    <sdpi-item label="Status">
+    <sdpi-item label="Status" data-i18n-label="unitStatus.status">
         <sdpi-radio setting="status" columns="2">
-            <option value="available">Verfügbar</option>
-            <option value="busy">Beschäftigt</option>
-            <option value="onbreak">Pause</option>
-            <option value="unavailable">Nicht verfügbar</option>
+            <option value="available" data-i18n="unitStatus.available">Available</option>
+            <option value="busy" data-i18n="unitStatus.busy">Busy</option>
+            <option value="onbreak" data-i18n="unitStatus.onbreak">On break</option>
+            <option value="unavailable" data-i18n="unitStatus.unavailable">Unavailable</option>
         </sdpi-radio>
     </sdpi-item>
 </body>

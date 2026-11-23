@@ -1,19 +1,19 @@
-# FiveNet for StreamDeck
+# FiveNet for Stream Deck
 
-StreamDeck plugin for FiveM servers with FiveNet integration.
+Stream Deck plugin for FiveM servers with FiveNet integration.
 
-> **Notice:** FiveNet for StreamDeck is a **community project** in the `fivenet-app` organization and is **not directly supported by the FiveNet team**. See `NOTICE` for details.
+> **Notice:** FiveNet for Stream Deck is a **community project** in the `fivenet-app` organization and is **not directly supported by the FiveNet team**. See `NOTICE` for details.
 
 ## Installation
 
 1. Download the latest `.streamDeckPlugin` file from the [Releases](https://github.com/fivenet-app/plugin-streamdeck/releases) section.
-2. Open the file, the StreamDeck application imports the plugin automatically.
+2. Open the file; the Stream Deck app imports the plugin automatically.
 3. Place the action keys on your device and log in via the **Login** key.
 
 ## Requirements
 
 - Windows 10/11 or macOS 12+
-- StreamDeck software 7.1+
+- Stream Deck software 7.1+ (Stream Deck MK.2, XL, or newer)
 - A FiveNet-compatible FiveM server (with account credentials)
 
 ## Actions
@@ -23,18 +23,31 @@ StreamDeck plugin for FiveM servers with FiveNet integration.
 | Login | Log in to the server |
 | Select Character | Select or switch the active character |
 | Open Dispatches | Count of open dispatches |
-| Dispatch Status Display | Status of the accepted dispatch |
+| Dispatch Status | Status of the accepted dispatch |
 | Set Dispatch Status | Set the status of the accepted dispatch |
 | Accept/Decline Dispatch | Accept or decline an assigned dispatch |
 | Set Unit Status | Set the status of your own unit |
-| Unit Status Display | Display the current status of your own unit |
+| Unit Status | Display the current status of your own unit |
 | Join Unit | Join a unit |
 | Notifications | Count of unread notifications |
+
+## Privacy
+
+The plugin stores the server address, credentials, session token, character selection, and
+action settings locally through the Stream Deck app. Data is sent only to the FiveNet
+server you configure; there is no telemetry or third-party service. See
+[PRIVACY.md](PRIVACY.md) for details.
+
+## Marketplace
+
+Listing copy and media for the Elgato Marketplace are in [marketplace/](marketplace/).
+The manifest uses English action names for Marketplace compliance; the property inspector
+and on-key status texts remain German.
 
 ## Building from source
 
 1. Clone the repository: `git clone https://github.com/fivenet-app/plugin-streamdeck.git`
-2. Install the dependencies: `npm install`
+2. Install the dependencies: `npm install` (Node.js 24 recommended)
 3. Build the plugin: `npm run build`
 4. The built plugin lands in `org.fivenet.streamdeck-plugin.sdPlugin/`.
 
@@ -45,7 +58,7 @@ For live development use `npm run watch` (rebuilds and restarts the plugin in th
 
 ### Nix / direnv (optional)
 
-A [flake.nix](flake.nix) dev shell with Node.js 22 and pnpm is provided. Enter it with `nix develop` or — if [direnv](https://direnv.net) is installed — simply by `cd`ing into the directory (see [.envrc](.envrc)).
+A [flake.nix](flake.nix) dev shell with Node.js 24 and pnpm is provided. Enter it with `nix develop` or — if [direnv](https://direnv.net) is installed — simply by `cd`ing into the directory (see [.envrc](.envrc)).
 
 ## License
 

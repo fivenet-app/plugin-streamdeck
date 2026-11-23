@@ -133,8 +133,10 @@ export function parseCentrumStreamChange(data: Uint8Array): CentrumStreamChange 
 	if (f.has(3)) return { kind: "settings" };
 	if (f.has(4)) return { kind: "access" };
 	if (f.has(5)) return { kind: "dispatchers" };
-	if (f.has(6) || f.has(7) || f.has(8)) return { kind: "unit_change" };
-	if (f.has(9) || f.has(10) || f.has(11)) return { kind: "dispatch_change" };
+	// Unit-Updates: vollständige Updates (6-8) und Feld-Updates (14, 15).
+	if (f.has(6) || f.has(7) || f.has(8) || f.has(14) || f.has(15)) return { kind: "unit_change" };
+	// Dispatch-Updates: vollständige Updates (9-11) und Feld-Updates (16, 17).
+	if (f.has(9) || f.has(10) || f.has(11) || f.has(16) || f.has(17)) return { kind: "dispatch_change" };
 	if (f.has(12)) return { kind: "settings_deleted" };
 	return { kind: "unknown" };
 }

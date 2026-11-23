@@ -1,6 +1,6 @@
 # Based upon https://github.com/the-nix-way/dev-templates
 {
-  description = "Basic flake for FiveNet StreamDeck plugin development";
+  description = "Basic flake for FiveNet Stream Deck plugin development";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-26.05";
@@ -23,7 +23,7 @@
         default = pkgs.mkShell {
           packages = with pkgs; [
             # NodeJS stuff
-            nodejs_22
+            nodejs_24
             pnpm_10
 
             # Utilities

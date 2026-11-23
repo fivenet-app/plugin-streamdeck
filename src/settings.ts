@@ -7,6 +7,7 @@ export type GlobalSettings = {
 	charID?: number;
 	charName?: string;
 	autoRelogin?: boolean;
+	language?: "en" | "de";
 };
 
 export type LoginSettings = Record<string, never>;

@@ -2,9 +2,10 @@
 <html>
 
 <head lang="en">
-    <title>Einheit beitreten</title>
+    <title data-i18n-title="join.pageTitle">Join Unit</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <script src="i18n.js"></script>
     <style>
         #status {
             margin: 10px 0;
@@ -34,27 +35,31 @@
 </head>
 
 <body>
-    <sdpi-item label="Einheit">
-        <sdpi-select id="unit-select" placeholder="— Einheit wählen —">
-            <option value="">— Einheit wählen —</option>
+    <sdpi-item label="Unit" data-i18n-label="join.label">
+        <sdpi-select id="unit-select" placeholder="— Select unit —" data-i18n-placeholder="join.placeholder">
+            <option value="">— Select unit —</option>
         </sdpi-select>
     </sdpi-item>
 
-    <div id="status" class="none">Einheit wird geladen...</div>
+    <div id="status" class="none" data-i18n="join.loading">Loading units...</div>
 
-    <div class="hint">
-        Die Auswahl wird gespeichert. Der Beitritt erfolgt durch einen Druck auf die Taste am Stream Deck.
+    <div class="hint" data-i18n="join.hint">
+        The selection is saved. Joining happens when you press the key on the Stream Deck.
     </div>
 
     <script>
+        const i18n = window.fivenetI18n;
         const select = document.getElementById('unit-select');
         const status = document.getElementById('status');
         let loaded = false;
         let timeoutId = null;
         let suppressEcho = false;
+        let lastUnitsPayload = null;
+        let statusRender = function () { return i18n.t('join.loading'); };
 
-        function setStatus(text, cls) {
-            status.textContent = text;
+        function setStatus(render, cls) {
+            statusRender = render;
+            status.textContent = render();
             status.className = cls || 'none';
         }
 
@@ -63,7 +68,8 @@
         }
 
         function fillOptions(items, configuredUnitId) {
-            const build = [{ value: '', label: '— Einheit wählen —', disabled: false }];
+            lastUnitsPayload = { items: items, configuredUnitId: configuredUnitId };
+            const build = [{ value: '', label: i18n.t('join.placeholder'), disabled: false }];
             (items || []).forEach((it) => build.push({ value: it.value, label: it.label, disabled: false }));
 
             const current = Array.from(select.querySelectorAll('option')).map(optionSignature).join('|');
@@ -100,6 +106,17 @@
             }
         }
 
+        function refreshPlaceholder() {
+            if (lastUnitsPayload) {
+                fillOptions(lastUnitsPayload.items, lastUnitsPayload.configuredUnitId);
+                return;
+            }
+            const opt = select.querySelector('option');
+            if (opt) {
+                opt.textContent = i18n.t('join.placeholder');
+            }
+        }
+
         select.addEventListener('valuechange', function() {
             if (suppressEcho) {
                 return;
@@ -118,16 +135,22 @@
                     timeoutId = null;
                 }
                 if (ev.payload.ownUnitName) {
-                    setStatus('Aktuell: ' + ev.payload.ownUnitName, 'current');
+                    const own = ev.payload.ownUnitName;
+                    setStatus(function () { return i18n.format('join.current', { name: own }); }, 'current');
                 } else {
-                    setStatus('Noch keine Einheit. Einheit auswählen, dann Taste drücken.', 'none');
+                    setStatus(function () { return i18n.t('join.none'); }, 'none');
                 }
                 if (ev.payload.items && ev.payload.items.length === 0) {
-                    setStatus('Keine Einheiten geladen. Server-Einstellungen bzw. Sitzung prüfen.', 'error');
+                    setStatus(function () { return i18n.t('join.empty'); }, 'error');
                 } else {
                     fillOptions(ev.payload.items, ev.payload.configuredUnitId);
                 }
             }
+        });
+
+        window.addEventListener('fivenet-language', function () {
+            status.textContent = statusRender();
+            refreshPlaceholder();
         });
 
         SDPIComponents.streamDeckClient.send("sendToPlugin", {
@@ -136,7 +159,7 @@
 
         timeoutId = setTimeout(function() {
             if (!loaded) {
-                setStatus('Keine Antwort vom Plugin. Läuft die Sitzung? PI ggf. neu öffnen.', 'error');
+                setStatus(function () { return i18n.t('join.noResponse'); }, 'error');
             }
         }, 6000);
     </script>

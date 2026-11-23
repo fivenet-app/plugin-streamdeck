@@ -2,16 +2,17 @@
 <html>
 
 <head lang="en">
-    <title>Einsatz annehmen/ablehnen</title>
+    <title data-i18n-title="take.pageTitle">Accept or Decline Dispatch</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <script src="i18n.js"></script>
 </head>
 
 <body>
-    <sdpi-item label="Aktion">
+    <sdpi-item label="Action" data-i18n-label="take.action">
         <sdpi-radio setting="action" columns="2">
-            <option value="accept">Annehmen</option>
-            <option value="decline">Ablehnen</option>
+            <option value="accept" data-i18n="take.accept">Accept</option>
+            <option value="decline" data-i18n="take.decline">Decline</option>
         </sdpi-radio>
     </sdpi-item>
 </body>

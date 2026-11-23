@@ -2,6 +2,7 @@ import streamDeck from "@elgato/streamdeck";
 import type { KeyAction } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
 import { loginExpiredSvg, notLoggedInSvg, reloginSvg, statusTitle, svgDataUri } from "./icons";
+import { t } from "../i18n";
 import type { GlobalSettings } from "../settings";
 
 const lastRender = new Map<string, { title?: string; image?: string }>();
@@ -31,7 +32,7 @@ export function clearKeyRender(id: string): void {
 }
 
 export async function sendNotLoggedIn(action: KeyAction<JsonObject>): Promise<void> {
-	await sendTitle(action, statusTitle("Nicht angemeldet"));
+	await sendTitle(action, statusTitle(t("title.notLoggedIn")));
 	await sendImage(action, svgDataUri(notLoggedInSvg()));
 }
 
@@ -39,10 +40,10 @@ export async function sendSessionExpired(action: KeyAction<JsonObject>): Promise
 	const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
 	if (settings.autoRelogin !== false) {
 		// Auto-Re-Login aktiv: statt des Fehlerbildes den laufenden Re-Login zeigen.
-		await sendTitle(action, statusTitle("Re-Login läuft"));
+		await sendTitle(action, statusTitle(t("title.reloginRunning")));
 		await sendImage(action, svgDataUri(reloginSvg()));
 		return;
 	}
-	await sendTitle(action, statusTitle("Login abgelaufen"));
+	await sendTitle(action, statusTitle(t("title.loginExpired")));
 	await sendImage(action, svgDataUri(loginExpiredSvg()));
 }

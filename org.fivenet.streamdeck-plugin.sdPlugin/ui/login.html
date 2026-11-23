@@ -2,9 +2,10 @@
 <html>
 
 <head lang="en">
-    <title>FiveNet Login</title>
+    <title data-i18n-title="login.pageTitle">FiveNet Login</title>
     <meta charset="utf-8" />
     <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+    <script src="i18n.js"></script>
     <style>
         .section-title {
             font-size: 12px;
@@ -16,53 +17,67 @@
 
 <body>
     <section>
-        <div class="section-title">Anmeldung</div>
+        <div class="section-title" data-i18n="login.section">Login</div>
         <div id="login-form">
-            <sdpi-item label="Server URL">
+            <sdpi-item label="Server URL" data-i18n-label="login.serverUrl">
                 <sdpi-textfield setting="serverURL" placeholder="https://demo.fivenet.app"></sdpi-textfield>
             </sdpi-item>
 
-            <sdpi-item label="Benutzername">
-                <sdpi-textfield setting="username" placeholder="Benutzername"></sdpi-textfield>
+            <sdpi-item label="Username" data-i18n-label="login.username">
+                <sdpi-textfield setting="username" placeholder="Username"></sdpi-textfield>
             </sdpi-item>
 
-            <sdpi-item label="Passwort">
-                <sdpi-password setting="password" placeholder="Passwort"></sdpi-password>
+            <sdpi-item label="Password" data-i18n-label="login.password">
+                <sdpi-password setting="password" placeholder="Password"></sdpi-password>
             </sdpi-item>
 
-            <sdpi-item label="Automatische Anmeldung">
-                <sdpi-checkbox global setting="autoRelogin" label="Bei abgelaufenem Login automatisch neu anmelden"></sdpi-checkbox>
+            <sdpi-item label="Language" data-i18n-label="login.language">
+                <sdpi-select setting="language" global default="en">
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                </sdpi-select>
+            </sdpi-item>
+
+            <sdpi-item label="Automatic login" data-i18n-label="login.autoRelogin">
+                <sdpi-checkbox global setting="autoRelogin" label="Sign in again automatically when the login expires" data-i18n-label="login.autoReloginHint"></sdpi-checkbox>
             </sdpi-item>
 
             <sdpi-item>
-                <sdpi-button onclick="doLogin()">Anmelden</sdpi-button>
+                <sdpi-button onclick="doLogin()" data-i18n="login.submit">Sign in</sdpi-button>
             </sdpi-item>
         </div>
     </section>
 
     <div id="status" style="margin-top:8px;padding:4px 8px;font-size:11px;color:#aaa;"></div>
 
-    <div style="margin-top:10px;font-size:11px;color:#888;">
-        Nach der Anmeldung den gewünschten Charakter mit der Taste „Charakter auswählen" aktivieren.
+    <div style="margin-top:10px;font-size:11px;color:#888;" data-i18n="login.hint">
+        After signing in, activate the desired character with the "Select Character" key.
     </div>
 
     <script>
+        const i18n = window.fivenetI18n;
         const statusEl = document.getElementById('status');
+        let statusRender = function () { return ''; };
 
-        function setStatus(text, color) {
-            statusEl.textContent = text;
+        function setStatus(render, color) {
+            statusRender = render;
+            statusEl.textContent = render();
             statusEl.style.color = color || '#aaa';
         }
 
+        window.addEventListener('fivenet-language', function () {
+            statusEl.textContent = statusRender();
+        });
+
         async function doLogin() {
-            setStatus('Verbinde...', '#ffcc00');
+            setStatus(function () { return i18n.t('login.connecting'); }, '#ffcc00');
 
             const serverURL = document.querySelector('[setting="serverURL"]').value;
             const username = document.querySelector('[setting="username"]').value;
             const password = document.querySelector('[setting="password"]').value;
 
             if (!serverURL || !username || !password) {
-                setStatus('Bitte alle Felder ausfüllen', '#ff4444');
+                setStatus(function () { return i18n.t('login.missingFields'); }, '#ff4444');
                 return;
             }
 
@@ -71,9 +86,9 @@
                     event: "login",
                     payload: { serverURL: serverURL, username: username, password: password }
                 });
-                setStatus('Login gesendet...', '#44cc44');
+                setStatus(function () { return i18n.t('login.sent'); }, '#44cc44');
             } catch (e) {
-                setStatus('Fehler: ' + e.message, '#ff4444');
+                setStatus(function () { return i18n.format('login.error', { message: e.message }); }, '#ff4444');
             }
         }
 
@@ -89,17 +104,22 @@
                     });
                 }
                 if (payload.session) {
-                    setStatus('Angemeldet als ' + payload.session.charName, '#44cc44');
+                    const name = payload.session.charName;
+                    setStatus(function () { return i18n.format('login.signedInAs', { name: name }); }, '#44cc44');
                 } else if (payload.error) {
-                    setStatus('Sitzung konnte nicht geladen werden', '#ff4444');
+                    setStatus(function () { return i18n.t('login.sessionFailed'); }, '#ff4444');
                 }
             } else if (payload.event === 'login-success') {
-                setStatus(
-                    payload.needsCharSelection ? 'Bitte Charakter auswählen' : 'Login erfolgreich' + (payload.charName ? ': ' + payload.charName : ''),
-                    '#44cc44'
-                );
+                const name = payload.charName;
+                const needsCharSelection = payload.needsCharSelection;
+                setStatus(function () {
+                    return needsCharSelection
+                        ? i18n.t('login.charNeeded')
+                        : i18n.t('login.success') + (name ? ': ' + name : '');
+                }, '#44cc44');
             } else if (payload.event === 'login-error') {
-                setStatus('Fehler: ' + (payload.message || 'Unbekannt'), '#ff4444');
+                const message = payload.message || i18n.t('login.unknown');
+                setStatus(function () { return i18n.format('login.error', { message: message }); }, '#ff4444');
             }
         });
 

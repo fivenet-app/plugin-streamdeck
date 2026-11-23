@@ -3,6 +3,7 @@ import { getClient } from "../fivenet/auth";
 import { TakeDispatchRequest, TakeDispatchResponse, TakeDispatchResp } from "../fivenet/messages";
 import { findPendingDispatch, getActiveCharId, isOwnUnit } from "../fivenet/centrum";
 import { alarmSvgPair, offlineSvg, startAlternating, statusTitle, svgDataUri, takeNeutralSvg } from "../fivenet/icons";
+import { t } from "../i18n";
 import { getCachedDispatches, getCachedUnits, invalidateCaches, isOffline, notifyAllRenderers, registerRenderer } from "../fivenet/sync";
 import { clearKeyRender, sendImage, sendTitle, sendSessionExpired } from "../fivenet/render";
 import { isSessionExpired } from "../fivenet/session";
@@ -48,7 +49,7 @@ export class TakeDispatchAction extends SingletonAction<TakeDispatchSettings> {
 	private async render(action: KeyAction<TakeDispatchSettings>): Promise<void> {
 		const settings = await action.getSettings();
 		const mode = settings.action === "decline" ? "decline" : "accept";
-		const label = mode === "accept" ? "Einsatz annehmen" : "Einsatz ablehnen";
+		const label = mode === "accept" ? t("action.acceptDispatch") : t("action.declineDispatch");
 
 		if (isSessionExpired()) {
 			this.stopBlink(action.id);
@@ -58,7 +59,7 @@ export class TakeDispatchAction extends SingletonAction<TakeDispatchSettings> {
 
 		if (isOffline()) {
 			this.stopBlink(action.id);
-			await sendTitle(action, statusTitle("offline"));
+			await sendTitle(action, statusTitle(t("title.offline")));
 			await sendImage(action, svgDataUri(offlineSvg()));
 			return;
 		}
@@ -95,18 +96,18 @@ export class TakeDispatchAction extends SingletonAction<TakeDispatchSettings> {
 		try {
 			const client = getClient();
 			if (!client) {
-				throw new Error("Keine Verbindung zum Server");
+				throw new Error(t("error.noServer"));
 			}
 
 			const charID = await getActiveCharId();
 			if (!charID) {
-				throw new Error("Kein Charakter ausgewählt");
+				throw new Error(t("error.noCharacter"));
 			}
 
 			const [units, dispatches] = await Promise.all([getCachedUnits(charID), getCachedDispatches(charID)]);
 			const own = units.find((u) => isOwnUnit(u, charID));
 			if (!own) {
-				throw new Error("Keine eigene Einheit gefunden");
+				throw new Error(t("error.noOwnUnit"));
 			}
 
 			const pending = findPendingDispatch(dispatches, own.id);

@@ -5,7 +5,6 @@ import {
 	encodeRepeatedVarint,
 	encodeRepeatedVarint64,
 	encodePackedRepeatedEnum,
-	encodeDouble,
 	mergeArrays,
 	decodeFields,
 	decodeString,
@@ -197,7 +196,6 @@ export class DispatchAssignment {
 export class Dispatch {
 	constructor(
 		public id: bigint = 0n,
-		public job = "",
 		public message = "",
 		public description = "",
 		public postal = "",
@@ -207,25 +205,12 @@ export class Dispatch {
 		public status?: DispatchStatus,
 		public units: DispatchAssignment[] = [],
 	) {}
-	serialize(): Uint8Array {
-		return mergeArrays(
-			encodeField64(1, this.id),
-			encodeField(4, 2, this.job),
-			encodeField(7, 2, this.message),
-			encodeField(8, 2, this.description),
-			encodeField(12, 2, this.postal),
-			encodeField(13, 0, this.anon ? 1 : 0),
-			encodeDouble(10, this.x),
-			encodeDouble(11, this.y),
-		);
-	}
 	static fromBinary(data: Uint8Array): Dispatch {
 		const f = decodeFields(data);
 		const idArr = decodeRepeatedInt64(f, 1);
 		const status = decodeSubMessage(f, 5, (d) => DispatchStatus.fromBinary(d));
 		return new Dispatch(
 			idArr[0] ?? 0n,
-			decodeString(f, 4),
 			decodeString(f, 7),
 			decodeString(f, 8),
 			decodeString(f, 12),

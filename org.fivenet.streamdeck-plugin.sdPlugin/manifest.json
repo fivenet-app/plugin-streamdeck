@@ -1,14 +1,14 @@
 {
     "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-    "Name": "FiveNet for StreamDeck",
-    "Version": "0.4.4.0",
+    "Name": "FiveNet for Stream Deck",
+    "Version": "0.4.5.1",
     "Author": "PhilTec-Philip",
     "Actions": [
         {
             "Name": "Login",
             "UUID": "org.fivenet.streamdeck-plugin.login",
             "Icon": "imgs/actions/login/icon",
-            "Tooltip": "FiveNet-Server anmelden",
+            "Tooltip": "Log in to your FiveNet server",
             "PropertyInspectorPath": "ui/login.html",
             "Controllers": [
                 "Keypad"
@@ -23,10 +23,10 @@
             "UserTitleEnabled": true
         },
         {
-            "Name": "Charakter auswählen",
+            "Name": "Select Character",
             "UUID": "org.fivenet.streamdeck-plugin.char-select",
             "Icon": "imgs/actions/char-select/icon",
-            "Tooltip": "Wählt einen Charakter aus oder wechselt ihn",
+            "Tooltip": "Select or switch the active character",
             "PropertyInspectorPath": "ui/char-select.html",
             "Controllers": [
                 "Keypad"
@@ -35,16 +35,16 @@
                 {
                     "Image": "imgs/actions/char-select/key",
                     "TitleAlignment": "middle",
-                    "Title": "Char"
+                    "Title": "Character"
                 }
             ],
             "UserTitleEnabled": true
         },
         {
-            "Name": "Offene Dispatches",
+            "Name": "Open Dispatches",
             "UUID": "org.fivenet.streamdeck-plugin.dispatch-status",
             "Icon": "imgs/actions/dispatch-status/icon",
-            "Tooltip": "Zeigt die Anzahl offener Einsätze",
+            "Tooltip": "Shows the number of open dispatches",
             "Controllers": [
                 "Keypad"
             ],
@@ -57,10 +57,10 @@
             ]
         },
         {
-            "Name": "Dispatch-Status Anzeige",
+            "Name": "Dispatch Status",
             "UUID": "org.fivenet.streamdeck-plugin.dispatch-status-display",
             "Icon": "imgs/actions/dispatch-status-display/icon",
-            "Tooltip": "Zeigt den Status des angenommenen Einsatzes",
+            "Tooltip": "Shows the status of the accepted dispatch",
             "Controllers": [
                 "Keypad"
             ],
@@ -73,10 +73,10 @@
             ]
         },
         {
-            "Name": "Dispatch-Status setzen",
+            "Name": "Set Dispatch Status",
             "UUID": "org.fivenet.streamdeck-plugin.dispatch-setzen",
             "Icon": "imgs/actions/dispatch-setzen/icon",
-            "Tooltip": "Setzt den Status des angenommenen Einsatzes",
+            "Tooltip": "Sets the status of the accepted dispatch",
             "PropertyInspectorPath": "ui/dispatch-setzen.html",
             "Controllers": [
                 "Keypad"
@@ -90,10 +90,10 @@
             ]
         },
         {
-            "Name": "Dispatch annehmen/ablehnen",
+            "Name": "Accept or Decline Dispatch",
             "UUID": "org.fivenet.streamdeck-plugin.take-dispatch",
             "Icon": "imgs/actions/take-dispatch/icon",
-            "Tooltip": "Nimmt einen zugewiesenen Einsatz an oder lehnt ihn ab",
+            "Tooltip": "Accepts or declines an assigned dispatch",
             "PropertyInspectorPath": "ui/take-dispatch.html",
             "Controllers": [
                 "Keypad"
@@ -107,10 +107,10 @@
             ]
         },
         {
-            "Name": "Einheit-Status setzen",
+            "Name": "Set Unit Status",
             "UUID": "org.fivenet.streamdeck-plugin.unit-status",
             "Icon": "imgs/actions/unit-status/icon",
-            "Tooltip": "Setzt den Status deiner Einheit",
+            "Tooltip": "Sets the status of your unit",
             "PropertyInspectorPath": "ui/unit-status.html",
             "Controllers": [
                 "Keypad"
@@ -124,10 +124,10 @@
             ]
         },
         {
-            "Name": "Einheit-Status Anzeige",
+            "Name": "Unit Status",
             "UUID": "org.fivenet.streamdeck-plugin.unit-status-display",
             "Icon": "imgs/actions/unit-status-display/icon",
-            "Tooltip": "Zeigt den aktuellen Status deiner Einheit",
+            "Tooltip": "Shows the current status of your unit",
             "Controllers": [
                 "Keypad"
             ],
@@ -140,10 +140,10 @@
             ]
         },
         {
-            "Name": "Einheit beitreten",
+            "Name": "Join Unit",
             "UUID": "org.fivenet.streamdeck-plugin.join-unit",
             "Icon": "imgs/actions/join-unit/icon",
-            "Tooltip": "Tritt einer Einheit bei",
+            "Tooltip": "Join a unit",
             "PropertyInspectorPath": "ui/join-unit.html",
             "Controllers": [
                 "Keypad"
@@ -157,10 +157,10 @@
             ]
         },
         {
-            "Name": "Benachrichtigungen",
+            "Name": "Notifications",
             "UUID": "org.fivenet.streamdeck-plugin.notification-count",
             "Icon": "imgs/actions/notification-count/icon",
-            "Tooltip": "Zeigt Anzahl ungelesener Benachrichtigungen",
+            "Tooltip": "Shows the number of unread notifications",
             "Controllers": [
                 "Keypad"
             ],
@@ -173,12 +173,13 @@
             ]
         }
     ],
-    "Category": "FiveNet for StreamDeck",
+    "Category": "FiveNet for Stream Deck",
     "CategoryIcon": "imgs/plugin/category-icon",
     "CodePath": "bin/plugin.js",
-    "Description": "StreamDeck-Plugin für FiveM-Server mit FiveNet-Integration",
+    "Description": "Control FiveNet units, dispatches, and notifications from your Stream Deck.",
     "Icon": "imgs/plugin/marketplace",
     "URL": "https://github.com/fivenet-app/plugin-streamdeck",
+    "SupportURL": "https://github.com/fivenet-app/plugin-streamdeck/issues",
     "SDKVersion": 3,
     "Software": {
         "MinimumVersion": "7.1"
@@ -194,8 +195,7 @@
         }
     ],
     "Nodejs": {
-        "Version": "24",
-        "Debug": "enabled"
+        "Version": "24"
     },
     "UUID": "org.fivenet.streamdeck-plugin"
 }
